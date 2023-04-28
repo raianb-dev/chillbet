@@ -11,7 +11,7 @@ op, auth = operator(TOKEN)
 token = auth_wss(TOKEN)
 
 # Config bets
-bet = 0.05
+bet = 0.03
 stake = bet
 last_result = []
 currency = 'BRL'
