@@ -11,14 +11,16 @@ op, auth = operator(TOKEN)
 token = auth_wss(TOKEN)
 
 # Config bets
-bet = 0.05
+bet = 0.02
 stake = bet
 last_result = []
 currency = 'BRL'
 color = ''
 loss = 1
 bet_placed = False
+color_to_bet = 'black'
 async def send_messages():
+    global color_to_bet
     # Url do websocket
     uri = f"wss://api.inout.games/io/?operatorId={op}&Authorization={token}&gameMode=new-double&EIO=4&transport=websocket"
     key_api = "5328905392:AAG29HHnR1vZQpCs5wcAvtDMfhzqJXzfrMA"
@@ -48,56 +50,29 @@ async def send_messages():
                         message_dict = json.loads(message_list[0][:-1])
                         status = message_dict.get('status')
                         print(status)
+                        
+
+
                         if status == 'WAIT_GAME':
-                            if len(last_result) >= 2 and last_result[-2:] == ['red', 'black'] or last_result[-2:] == ['black', 'red']:
-                                print('Skipping bet because last 2 results were the same color')
-                                continue
+                            
+                            bet_message = f'42["gameService",{{"action":"make-bet","messageId":"1","payload":{{"betAmount":"{stake}","currency":"{currency}","color":"{color_to_bet}"}}}}]'
+                            await websocket.send(bet_message)
+                            print(f'Sending message: {bet_message}')
 
-                            if len(last_result) >= 3 and last_result[-3] == last_result[-2]:
-                                # Bet on the last color
-                                color_to_bet = last_result[-1]
-                                loss = 1
-                            else:
-                                color_to_bet = color
-                                if lost_previous_round is True and last_result != 'green':
-                                    stake = stake*3 if stake < 4.00 else bet
-                                elif bet_placed is False:
-                                    stake = bet
-                                print(f'Resetting the bet to {stake}')
 
-                            if color_to_bet != 'green' and color_to_bet == color:
-                                bet_message = f'42["gameService",{{"action":"make-bet","messageId":"1","payload":{{"betAmount":"{stake}","currency":"{currency}","color":"{color_to_bet}"}}}}]'
-                                await websocket.send(bet_message)
-                                print(f'Sending message: {bet_message}')
 
-                                bet_placed = False
-                            elif color_to_bet == color and last_result[-2] != last_result[-1]:
-                                stake = bet
-                                print(f'Resetting the bet to {stake}')
+                        if status == 'IN_GAME':
+                            cellResult =message_dict.get('cellResult')
+                            print('aqui:::', message_dict.get('cellResult'))   
+                            color = cellResult['color']
+                            if color != color_to_bet:
+                                stake = stake*2
+                            if color == color_to_bet:
+                                stake = 0.02
+                            
 
-                                                                        
-                        else:
-                            cell_result = message_dict.get('cellResult')
-                            if cell_result:
-                                color = cell_result.get('color')
-                                number = cell_result.get('number')
-                                print(f'Color: {color}, Number: {number}')
 
-                                last_result.append(color)
-                                if len(last_result) > 2:
-                                    last_result = last_result[-2:]
-
-                                if len(last_result) == 2:
-                                    if last_result[0] == last_result[1]:
-                                        print('São cores iguais:', last_result[0], last_result[1])
-
-                                    # Check if lost previous round
-                                    if last_result[-1] != color_to_bet:
-                                        lost_previous_round = True
-                                    else:
-                                        lost_previous_round = False
-                                    bet_placed = False
-
+                                
 
 
                 except websockets.exceptions.ConnectionClosed:
@@ -119,6 +94,18 @@ async def send_messages():
 
                 # definindo a hora da última atividade para a hora atual
                 last_activity_time = time.time() 
+                """if 'gameService-game-status-changed' in message_received:
+                                        message_list = message_received.split('["gameService-game-status-changed",')[1:]
+                                        message_dict = json.loads(message_list[0][:-1])
+                                        status = message_dict.get('status')
+                                        if status == "IN_GAME":
+                                            if color_to_bet == 'black':
+                                                color_to_bet = 'red'
+                                            else:
+                                                color_to_bet = 'black'
+                """
+                # Verifica se ocorreu um novo jogo
+                
 
             except asyncio.TimeoutError:
                 # Enviando mensagem "3" caso o tempo de espera tenha expirado
