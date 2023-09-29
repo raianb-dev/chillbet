@@ -11,6 +11,7 @@ op, auth = operator(TOKEN)
 token = auth_wss(TOKEN)
 
 # Config bets
+
 bet = 0.02
 stake = bet
 last_result = []
