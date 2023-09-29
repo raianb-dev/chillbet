@@ -48,14 +48,14 @@ async def send_messages():
                             if win:
                                 bet = stake  # Redefine a aposta para 1 em caso de vitória
 
-                            if not win and last_result[0] > 1.5 and placed and bet < 1.28:
+                            if not win and last_result[0] > 1.5 and placed:
                                 bet *= 2
 
                             if last_result[0] > 1.8 and placed:
                                 win = True
                                 count_win += 1
                                 print(f'Ganhou a aposta! Ganhou {count_win}x')
-                                bet = 1  # Redefine a aposta para 1 após uma vitória
+                                bet = stake # Redefine a aposta para 1 após uma vitória
                             elif last_result[0] < 1.8 and placed:
                                 win = False
                                 count_false += 1
