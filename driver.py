@@ -9,7 +9,7 @@ op, auth = operator(TOKEN)
 token = auth_wss(TOKEN)
 
 # Configuração das apostas
-bet = 0.05
+bet = 0.02
 stake = bet
 last_result = []
 currency = 'BRL'
@@ -48,7 +48,7 @@ async def send_messages():
                             if win:
                                 bet = stake # Redefine a aposta para 1 em caso de vitória
 
-                            if not win and last_result[0] > 1.5 and placed and bet < 8:
+                            if not win and last_result[0] > 1.5 and placed and bet < 1.28:
                                 bet *= 2
 
                             if last_result[0] > 1.8 and placed:
