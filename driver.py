@@ -46,16 +46,16 @@ async def send_messages():
                             last_result.insert(0, coefficient)
 
                             if win:
-                                bet = stake  # Redefine a aposta para 1 em caso de vitória
+                                bet = stake # Redefine a aposta para 1 em caso de vitória
 
-                            if not win and last_result[0] > 1.5 and placed:
+                            if not win and last_result[0] > 1.5 and placed and bet < 1.28:
                                 bet *= 2
 
                             if last_result[0] > 1.8 and placed:
                                 win = True
                                 count_win += 1
                                 print(f'Ganhou a aposta! Ganhou {count_win}x')
-                                bet = stake # Redefine a aposta para 1 após uma vitória
+                                bet = 1  # Redefine a aposta para 1 após uma vitória
                             elif last_result[0] < 1.8 and placed:
                                 win = False
                                 count_false += 1
@@ -67,7 +67,7 @@ async def send_messages():
                             if len(last_result) > 1 and last_result[0] == last_result[1]:
                                 print('Excluindo linha repetida')
                                 last_result.pop(0)
-
+                                
                             # Adicione a verificação para redefinir a aposta para 1.28
                             if last_result[0] > 1.5 and not placed and bet >= 1.28:
                                 bet = stake
@@ -97,6 +97,7 @@ async def send_messages():
 
             except asyncio.TimeoutError:
                 await websocket.send("3")
+
 
         receive_task.cancel()
 
