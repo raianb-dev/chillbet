@@ -9,7 +9,7 @@ op, auth = operator(TOKEN)
 token = auth_wss(TOKEN)
 
 # Configuração das apostas
-bet = 1
+bet = 0.05
 stake = bet
 last_result = []
 currency = 'BRL'
@@ -74,7 +74,7 @@ async def send_messages():
                         status = message_dict.get('status')
                         if status == 'WAIT_GAME' and last_result[0] > 1.5 and not placed:
                             print('Passou da validação')
-                            bet_message = f'42["addBet",{{"betAmount":{bet},"coeffAuto":1.8,"currency":"DEMO","betNumber":0}}]'
+                            bet_message = f'42["addBet",{{"betAmount":{bet},"coeffAuto":1.8,"currency":"BRL","betNumber":0}}]'
                             await websocket.send(bet_message)
                             print('Apostou')
                             placed = True
