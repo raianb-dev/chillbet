@@ -9,7 +9,7 @@ op, auth = operator(TOKEN)
 token = auth_wss(TOKEN)
 
 # Configuração das apostas
-bet = 0.02
+bet = 0.05
 stake = bet
 last_result = []
 currency = 'BRL'
@@ -48,14 +48,11 @@ async def send_messages():
                             if win:
                                 bet = stake # Redefine a aposta para 1 em caso de vitória
 
-                            if not win and last_result[0] > 1.5 and placed and bet < 1.28:
-                                bet *= 2
-
                             if last_result[0] > 1.8 and placed:
                                 win = True
                                 count_win += 1
                                 print(f'Ganhou a aposta! Ganhou {count_win}x')
-                                bet = 1  # Redefine a aposta para 1 após uma vitória
+                                bet = stake  # Redefine a aposta para 1 após uma vitória
                             elif last_result[0] < 1.8 and placed:
                                 win = False
                                 count_false += 1
@@ -67,16 +64,16 @@ async def send_messages():
                             if len(last_result) > 1 and last_result[0] == last_result[1]:
                                 print('Excluindo linha repetida')
                                 last_result.pop(0)
-                                
+
                             # Adicione a verificação para redefinir a aposta para 1.28
-                            if last_result[0] > 1.5 and not placed and bet >= 1.28:
+                            if last_result[0] > 1.5  and not placed and bet >= 1.60:
                                 bet = stake
 
                     if 'onChangeStateGame' in message:
                         message_list = message.split('["onChangeStateGame",')[1:]
                         message_dict = json.loads(message_list[0][:-1])
                         status = message_dict.get('status')
-                        if status == 'WAIT_GAME' and last_result[0] > 1.5 and not placed:
+                        if status == 'WAIT_GAME' and last_result[0] > 1.5 and last_result[0] < 2 and not placed:
                             print('Passou da validação')
                             bet_message = f'42["addBet",{{"betAmount":{bet},"coeffAuto":1.8,"currency":"BRL","betNumber":0}}]'
                             await websocket.send(bet_message)
